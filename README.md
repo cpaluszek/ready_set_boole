@@ -50,3 +50,5 @@ Explanation:
 - Addition: result = result + multiplicand accumulates the result by adding the multiplicand whenever the corresponding bit in the multiplier is 1.
 - Left Shift: multiplicand << 1 shifts the multiplicand to the left by one bit, effectively multiplying it by 2.
 - Right Shift: multiplier >> 1 shifts the multiplier to the right by one bit, effectively dividing it by 2.
+
+![binary multiplication](https://mathmonks.com/wp-content/uploads/2024/02/Binary-Multiplication.jpg)
