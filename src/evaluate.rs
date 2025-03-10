@@ -34,7 +34,7 @@ fn try_eval_formula(formula: &str) -> Result<bool, EvalError> {
                 let value = match symbol {
                     LogicalSymbol::True => true,
                     LogicalSymbol::False => false,
-                    _ => unreachable!(),
+                    _ => return Err(EvalError::UnrecognizedSymbol(character)),
                 };
                 stack.push(value);
             } else if symbol == LogicalSymbol::Negation {

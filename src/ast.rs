@@ -5,6 +5,7 @@ pub enum LogicalSymbol {
     // Operands
     False,  // 0, ⊥
     True,   // 1, ⊤
+    Variable(char),
 
     // Operators
     Negation,      // !, ¬
@@ -26,6 +27,7 @@ impl LogicalSymbol {
             '^' | '⊕' => Some(LogicalSymbol::ExclusiveOr),
             '>' | '⇒' => Some(LogicalSymbol::Implication),
             '=' | '⇔' => Some(LogicalSymbol::Equivalence),
+            'A'..='Z' => Some(LogicalSymbol::Variable(c)),
             _ => None,
         }
     }
@@ -40,11 +42,12 @@ impl LogicalSymbol {
             LogicalSymbol::ExclusiveOr => '⊕',
             LogicalSymbol::Implication => '⇒',
             LogicalSymbol::Equivalence => '⇔',
+            LogicalSymbol::Variable(c) => *c,
         }
     }
 
     pub fn is_operand(&self) -> bool {
-        matches!(self, LogicalSymbol::True | LogicalSymbol::False)
+        matches!(self, LogicalSymbol::True | LogicalSymbol::False | LogicalSymbol::Variable(_))
     }
 
     pub fn is_operator(&self) -> bool {
