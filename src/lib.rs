@@ -1,5 +1,4 @@
 // TODO: time and space complexity of each function
-// TODO: create a bin for each exercise
 
 pub mod adder;
 pub mod multiplier;

@@ -13,3 +13,6 @@ name = "multiplier"
 
 [[bin]]
 name = "gray_code"
+
+[[bin]]
+name = "eval_formula"

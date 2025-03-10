@@ -54,7 +54,7 @@ impl LogicalSymbol {
 
 #[derive(Debug, Clone)]
 pub enum AstNode {
-    Operator(LogicalSymbol, Box<AstNode>, Box<AstNode>),
+    Operator(LogicalSymbol, Option<Box<AstNode>>, Option<Box<AstNode>>),
     Operand(LogicalSymbol),
 }
 
@@ -72,29 +72,39 @@ impl Ast {
 
     fn height(&self, node: &AstNode) -> usize {
         match node {
-            AstNode::Operator(_, left, right) => {
+            AstNode::Operator(_, Some(left), Some(right)) => {
                 let left_height = self.height(left);
                 let right_height = self.height(right);
                 1 + std::cmp::max(left_height, right_height)
             }
+            AstNode::Operator(_, Some(left), None) => {
+                let left_height = self.height(left);
+                1 + left_height
+            }
             AstNode::Operand(_) => 1,
+            _ => 0,
         }
     }
 
     fn width(&self, node: &AstNode) -> usize {
         match node {
-            AstNode::Operator(_, left, right) => {
+            AstNode::Operator(_, Some(left), Some(right)) => {
                 let left_width = self.width(left);
                 let right_width = self.width(right);
-                left_width + right_width + 1
+                left_width + right_width
+            }
+            AstNode::Operator(_, Some(left), None) => {
+                let left_width = self.width(left);
+                left_width
             }
             AstNode::Operand(_) => 1,
+            _ => 0,
         }
     }
 
     fn draw_tree(&self, node: &AstNode, buffer: &mut Vec<Vec<char>>, row: usize, col: usize) {
         match node {
-            AstNode::Operator(op, left, right) => {
+            AstNode::Operator(op, Some(left), Some(right)) => {
                 // Place operator
                 buffer[row][col] = op.to_unicode();
 
@@ -106,23 +116,34 @@ impl Ast {
                 let right_col = col + right_width / 2 + 1;
 
                 // Draw connections
-                buffer[row + 1][col - 1] = '/';
-                buffer[row + 1][col + 1] = '\\';
+                if row + 1 < buffer.len() {
+                    buffer[row + 1][col - 1] = '/';
+                    buffer[row + 1][col + 1] = '\\';
+                }
 
                 // Draw children
                 self.draw_tree(left, buffer, row + 2, left_col);
                 self.draw_tree(right, buffer, row + 2, right_col);
             },
+            AstNode::Operator(op, Some(left), None) => {
+                // Place operator
+                buffer[row][col] = op.to_unicode();
+                buffer[row + 1][col] = '|';
+
+                // Draw the single child (for unary operators like negation)
+                self.draw_tree(left, buffer, row + 2, col);
+            },
             AstNode::Operand(val) => {
                 buffer[row][col] = val.to_unicode();
             }
+            _ => return,
         }
     }
 
     fn visualize_tree(&self) -> String {
         if let Some(root) = &self.root {
             let height = self.height(root) * 2;
-            let width = self.width(root) * 2;
+            let width = self.width(root) * 4;
 
             let mut buffer = vec![vec![' '; width]; height];
 
