@@ -10,3 +10,6 @@ name = "adder"
 
 [[bin]]
 name = "multiplier"
+
+[[bin]]
+name = "gray_code"

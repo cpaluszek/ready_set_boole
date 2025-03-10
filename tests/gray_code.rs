@@ -19,6 +19,11 @@ fn test_small_numbers() {
 }
 
 #[test]
-fn test_large_numbers() {
-    assert_eq!(gray_code(1024), 1536);
+fn test_adjacent_values() {
+    for a in 0..u8::MAX as u32 {
+        let ga = gray_code(a);
+        let gb = gray_code(a + 1);
+        let diff = ga ^ gb;
+        assert_eq!(diff.count_ones(),  1, "{ga:b} {gb:b}");
+    }
 }
