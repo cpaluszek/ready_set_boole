@@ -1,4 +1,4 @@
-use ready_set_boole::eval_formula::eval_formula;
+use ready_set_boole::evaluate::eval_formula;
 
 #[test]
 fn test_eval_formula() {
