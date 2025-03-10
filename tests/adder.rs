@@ -1,5 +1,4 @@
 use std::u8;
-
 use ready_set_boole::adder;
 
 #[test]

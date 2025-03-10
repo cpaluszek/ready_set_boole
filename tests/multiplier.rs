@@ -2,26 +2,12 @@ use ready_set_boole::multiplier;
 
 #[test]
 fn simple_multiplication() {
-    let a = 5;
-    let b = 3;
-    let result = multiplier(a, b);
-    assert_eq!(result, a * b);
-}
+    for a in 0..u8::MAX as u32 {
+        for b in 0..u8::MAX as u32 {
+            assert_eq!(multiplier(a, b), a.wrapping_mul(b));
+        }
+    }
 
-#[test]
-fn zero_multiplication() {
-    let a = 5;
-    let b = 0;
-    let result = multiplier(a, b);
-    assert_eq!(result, a * b);
-}
-
-#[test]
-fn large_multiplication() {
-    let a = 1_234_567;
-    let b = 2;
-    let result = multiplier(a, b);
-    assert_eq!(result, a * b);
 }
 
 #[test]
@@ -31,3 +17,4 @@ fn max_multiplication() {
     let result = multiplier(a, b);
     assert_eq!(result, a * b);
 }
+
