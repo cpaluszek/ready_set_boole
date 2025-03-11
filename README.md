@@ -101,3 +101,25 @@ Input Expression: `(A ∧ B) ∨ C`
 | 1 | 1 | 1 | 1 |
 
 Each row represents a unique combination of variable values, and the columns show intermediate and final results.
+
+## Ex05 - Negation Normal Form
+**WHAT IS THE PURPOSE OF THIS FORM??**
+
+- [Negation Normal Form](https://en.wikipedia.org/wiki/Negation_normal_form)
+
+A formula is in NNF if the negation operator is only applied to variables or conjuction (∧, AND).
+Every formula can be brought into this form by:
+- replacing implications and equivalences by their definitions
+- using [De Morgan's laws](https://en.wikipedia.org/wiki/De_Morgan%27s_laws)
+- eliminating double negations
+
+This process can be represented using the following rewrite rules:
+- Double negation elimination: (¬¬A) ⇔ A
+- Material condition: (A ⇒ B) ⇔ (¬A ∨ B)
+- Equivalence: (A ⇔ B) ⇔ ((A ⇒ B) ∧ (B ⇒ A))
+- De Morgan's laws: 
+    - ¬(A ∨ B) ⇔ (¬A ∧ ¬B)
+    - ¬(A ∧ B) ⇔ (¬A ∨ ¬B)
+- Distributivity:
+    - (A ∧ (B ∨ C)) ⇔ ((A ∧ B) ∨ (A ∧ C))
+    - (A ∨ (B ∧ C)) ⇔ ((A ∨ B) ∧ (A ∨ C))
