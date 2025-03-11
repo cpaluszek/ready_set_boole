@@ -55,9 +55,7 @@ Explanation:
 
 ## Ex02 - Gray code
 - [Gray code - wikipedia](https://en.wikipedia.org/wiki/Gray_code#Constructing_an_n-bit_Gray_code)
-Is an ordering of the binary numeral system such that two successive values differ in only one bit.
-
-Cycling through various states requires minimal effort.
+Is an ordering of binary numbers where two successive values differ in only one bit, useful for reducing state transitions.
 
 **Binary to Gray conversion**
 1. MSB (Most Significant Bit): The most significant bit (MSB) remains the same in both binary and Gray code.
@@ -65,6 +63,41 @@ Cycling through various states requires minimal effort.
 
 ![Binary to gray](https://media.geeksforgeeks.org/wp-content/uploads/20220420085103/Screenshot695-300x191.png)
 
+## Ex03 - Boolean Evaluation
+
+Evaluates propositional formulas in Reverse Polish Notation (RPN) using an Abstract Syntax Tree (AST) for visualization and binary tree representation.
+- [Reverse Polish Notation](https://en.wikipedia.org/wiki/Reverse_Polish_notation)
+- [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
+
+| Symbol | Mathematical equivalent | Description           |
+|--------|-------------------------|-----------------------|
+|  `0`   | `⊥`                     | false                 |
+|  `1`   | `⊤`                     | true                  |
+|  `!`   | `¬`                     | Negation              |
+|  `&`   | `∧`                     | Conjunction           |
+|  `│`   | `∨`                     | Disjunction           |
+|  `ˆ`   | `⊕`                     | Exclusive disjunction |
+|  `>`   | `⇒`                     | Material condition    |
+|  `=`   | `⇔`                     | Logical equivalence   |
 
 
+## Ex04 - Truth Table
 
+Generates a truth table for a given Boolean expression. A truth table lists all possible input values and their corresponding output values based on logical operations.
+
+**Example**
+
+Input Expression: `(A ∧ B) ∨ C`
+
+| A | B | C | = |
+|---|---|---|---|
+| 0 | 0 | 0 | 0 |
+| 0 | 0 | 1 | 1 |
+| 0 | 1 | 0 | 0 |
+| 0 | 1 | 1 | 1 |
+| 1 | 0 | 0 | 0 |
+| 1 | 0 | 1 | 1 |
+| 1 | 1 | 0 | 1 |
+| 1 | 1 | 1 | 1 |
+
+Each row represents a unique combination of variable values, and the columns show intermediate and final results.
