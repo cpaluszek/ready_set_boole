@@ -1,4 +1,4 @@
-use ready_set_boole::{ast::{Ast, AstNode}, LogicalSymbol};
+use ready_set_boole::{ast::{Ast, AstNode}, symbol::LogicalSymbol};
 
 #[test]
 fn test_ast_display() {

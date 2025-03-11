@@ -1,4 +1,4 @@
-use ready_set_boole::gray_code;
+use ready_set_boole::arithmetic::gray_code;
 
 pub fn main() {
     for arg in std::env::args().skip(1) {

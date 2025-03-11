@@ -1,14 +1,13 @@
 // TODO: time and space complexity of each function
 
-pub mod adder;
-pub mod multiplier;
-pub mod gray_code;
+pub mod arithmetic;
 pub mod evaluate;
 pub mod ast;
+pub mod symbol;
+pub mod error;
+pub mod truth_table;
 
-pub use adder::adder;
-pub use multiplier::multiplier;
-pub use gray_code::gray_code;
+pub use arithmetic::*;
 pub use evaluate::eval_formula;
-pub use ast::*;
-
+pub use error::LogicError;
+pub use truth_table::*;

@@ -1,59 +1,6 @@
-use std::fmt;
+use std::{collections::HashSet, fmt};
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum LogicalSymbol {
-    // Operands
-    False,  // 0, ⊥
-    True,   // 1, ⊤
-    Variable(char),
-
-    // Operators
-    Negation,      // !, ¬
-    Conjunction,   // &, ∧
-    Disjunction,   // |, ∨
-    ExclusiveOr,   // ^, ⊕
-    Implication,   // >, ⇒
-    Equivalence,   // =, ⇔
-}
-
-impl LogicalSymbol {
-    pub fn from_char(c: char) -> Option<Self> {
-        match c {
-            '0' | '⊥' => Some(LogicalSymbol::False),
-            '1' | '⊤' => Some(LogicalSymbol::True),
-            '!' | '¬' => Some(LogicalSymbol::Negation),
-            '&' | '∧' => Some(LogicalSymbol::Conjunction),
-            '|' | '∨' => Some(LogicalSymbol::Disjunction),
-            '^' | '⊕' => Some(LogicalSymbol::ExclusiveOr),
-            '>' | '⇒' => Some(LogicalSymbol::Implication),
-            '=' | '⇔' => Some(LogicalSymbol::Equivalence),
-            'A'..='Z' => Some(LogicalSymbol::Variable(c)),
-            _ => None,
-        }
-    }
-
-    pub fn to_unicode(&self) -> char {
-        match self {
-            LogicalSymbol::False => '⊥',
-            LogicalSymbol::True => '⊤',
-            LogicalSymbol::Negation => '¬',
-            LogicalSymbol::Conjunction => '∧',
-            LogicalSymbol::Disjunction => '∨',
-            LogicalSymbol::ExclusiveOr => '⊕',
-            LogicalSymbol::Implication => '⇒',
-            LogicalSymbol::Equivalence => '⇔',
-            LogicalSymbol::Variable(c) => *c,
-        }
-    }
-
-    pub fn is_operand(&self) -> bool {
-        matches!(self, LogicalSymbol::True | LogicalSymbol::False | LogicalSymbol::Variable(_))
-    }
-
-    pub fn is_operator(&self) -> bool {
-        !self.is_operand()
-    }
-}
+use crate::symbol::LogicalSymbol;
 
 #[derive(Debug, Clone)]
 pub enum AstNode {
@@ -63,7 +10,7 @@ pub enum AstNode {
 
 #[derive(Debug, Clone)]
 pub struct Ast {
-    root: Option<Box<AstNode>>,
+    pub root: Option<Box<AstNode>>,
 }
 
 impl Ast {
@@ -102,6 +49,32 @@ impl Ast {
             }
             AstNode::Operand(_) => 1,
             _ => 0,
+        }
+    }
+
+    pub fn variables(&self) -> HashSet<char> {
+        let mut vars = HashSet::new();
+        if let Some(root) = &self.root {
+            self.collect_variables(&root, &mut vars);
+        }
+        return vars;
+    }
+
+    fn collect_variables(&self, node: &AstNode, vars: &mut HashSet<char>) {
+        match node {
+            AstNode::Operand(symbol) => {
+                if symbol.is_variable() {
+                    vars.insert(symbol.to_unicode());
+                }
+            },
+            AstNode::Operator(_, left, right) => {
+                if let Some(l) = left {
+                    self.collect_variables(l, vars);
+                }
+                if let Some(r) = right {
+                    self.collect_variables(r, vars);
+                }
+            }
         }
     }
 
@@ -152,17 +125,46 @@ impl Ast {
 
             self.draw_tree(root, &mut buffer, 0, width / 2);
 
-            let mut result = String::with_capacity(height * width);
+            let mut result = String::with_capacity(height * (width + 1));
             for row in buffer {
-                let line: String = row.into_iter().collect();
-                let trimmed = line.trim_end();
-                result.push_str(trimmed);
+                // Find the last non-space character
+                let last_non_space = row.iter().rposition(|&c| c != ' ').unwrap_or(0);
+
+                // Only append up to the last non-space character
+                for i in 0..=last_non_space {
+                    result.push(row[i]);
+                }
                 result.push('\n');
             }
 
             result
         } else {
             String::new()
+        }
+    }
+
+    pub fn evaluate(&self, node: &AstNode, values: &HashSet<char>) -> bool {
+        match node {
+            AstNode::Operand(symbol) => {
+                if symbol.is_variable() {
+                    return values.contains(&symbol.to_unicode());
+                } else {
+                    return symbol == &LogicalSymbol::True;
+                }
+            },
+            AstNode::Operator(symbol, left, right) => {
+                let left_val = left.as_ref().map(|l| self.evaluate(l, values)).unwrap_or(false);
+                let right_val = right.as_ref().map(|r| self.evaluate(r, values)).unwrap_or(false);
+                match symbol {
+                    LogicalSymbol::Negation => !left_val,
+                    LogicalSymbol::Conjunction => left_val && right_val,
+                    LogicalSymbol::Disjunction => left_val || right_val,
+                    LogicalSymbol::ExclusiveOr => left_val ^ right_val,
+                    LogicalSymbol::Implication => !left_val || right_val,
+                    LogicalSymbol::Equivalence => left_val == right_val,
+                    _ => unreachable!(),
+                }
+            }
         }
     }
 }

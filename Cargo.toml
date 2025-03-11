@@ -16,3 +16,6 @@ name = "gray_code"
 
 [[bin]]
 name = "eval_formula"
+
+[[bin]]
+name = "print_truth_table"
