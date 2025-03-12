@@ -4,8 +4,9 @@ use crate::symbol::LogicalSymbol;
 
 #[derive(Debug, Clone)]
 pub enum AstNode {
-    Operator(LogicalSymbol, Option<Box<AstNode>>, Option<Box<AstNode>>),
+    Operator(LogicalSymbol, Box<AstNode>, Box<AstNode>),
     Operand(LogicalSymbol),
+    Negation(Box<AstNode>),
 }
 
 #[derive(Debug, Clone)]
@@ -22,33 +23,31 @@ impl Ast {
 
     fn height(&self, node: &AstNode) -> usize {
         match node {
-            AstNode::Operator(_, Some(left), Some(right)) => {
+            AstNode::Operator(_, left, right) => {
                 let left_height = self.height(left);
                 let right_height = self.height(right);
                 1 + std::cmp::max(left_height, right_height)
             }
-            AstNode::Operator(_, Some(left), None) => {
-                let left_height = self.height(left);
-                1 + left_height
+            AstNode::Negation(child) => {
+                let child_height = self.height(child);
+                1 + child_height
             }
             AstNode::Operand(_) => 1,
-            _ => 0,
         }
     }
 
     fn width(&self, node: &AstNode) -> usize {
         match node {
-            AstNode::Operator(_, Some(left), Some(right)) => {
+            AstNode::Operator(_, left, right) => {
                 let left_width = self.width(left);
                 let right_width = self.width(right);
                 left_width + right_width
             }
-            AstNode::Operator(_, Some(left), None) => {
-                let left_width = self.width(left);
-                left_width
+            AstNode::Negation(child) => {
+                let child_height = self.height(child);
+                child_height
             }
             AstNode::Operand(_) => 1,
-            _ => 0,
         }
     }
 
@@ -68,19 +67,18 @@ impl Ast {
                 }
             },
             AstNode::Operator(_, left, right) => {
-                if let Some(l) = left {
-                    self.collect_variables(l, vars);
-                }
-                if let Some(r) = right {
-                    self.collect_variables(r, vars);
-                }
+                self.collect_variables(left, vars);
+                self.collect_variables(right, vars);
+            },
+            AstNode::Negation(child) => {
+                self.collect_variables(child, vars);
             }
         }
     }
 
     fn draw_tree(&self, node: &AstNode, buffer: &mut Vec<Vec<char>>, row: usize, col: usize) {
         match node {
-            AstNode::Operator(op, Some(left), Some(right)) => {
+            AstNode::Operator(op, left, right) => {
                 // Place operator
                 buffer[row][col] = op.to_unicode();
 
@@ -101,18 +99,17 @@ impl Ast {
                 self.draw_tree(left, buffer, row + 2, left_col);
                 self.draw_tree(right, buffer, row + 2, right_col);
             },
-            AstNode::Operator(op, Some(left), None) => {
+            AstNode::Negation(child) => {
                 // Place operator
-                buffer[row][col] = op.to_unicode();
+                buffer[row][col] = LogicalSymbol::Negation.to_unicode();
                 buffer[row + 1][col] = '|';
 
                 // Draw the single child (for unary operators like negation)
-                self.draw_tree(left, buffer, row + 2, col);
+                self.draw_tree(child, buffer, row + 2, col);
             },
             AstNode::Operand(val) => {
                 buffer[row][col] = val.to_unicode();
             }
-            _ => return,
         }
     }
 
@@ -153,8 +150,8 @@ impl Ast {
                 }
             },
             AstNode::Operator(symbol, left, right) => {
-                let left_val = left.as_ref().map(|l| self.evaluate(l, values)).unwrap_or(false);
-                let right_val = right.as_ref().map(|r| self.evaluate(r, values)).unwrap_or(false);
+                let left_val = self.evaluate(left, values);
+                let right_val = self.evaluate(right, values);
                 match symbol {
                     LogicalSymbol::Negation => !left_val,
                     LogicalSymbol::Conjunction => left_val && right_val,
@@ -164,6 +161,9 @@ impl Ast {
                     LogicalSymbol::Equivalence => left_val == right_val,
                     _ => unreachable!(),
                 }
+            },
+            AstNode::Negation(child) => {
+                !self.evaluate(child, values)
             }
         }
     }

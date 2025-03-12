@@ -83,15 +83,17 @@ pub fn build_ast(formula: &str) -> Result<Ast, LogicError> {
                     return Err(LogicError::MissingArgument(character));
                 }
                 let operand = stack.pop().unwrap();
-                stack.push(AstNode::Operator(symbol, Some(Box::new(operand)), None));
+                stack.push(AstNode::Negation(Box::new(operand)));
             } else {
+
+                // TODO: use .ok_or() instead of unwrap
                 if stack.len() < 2 {
                     return Err(LogicError::MissingArgument(character));
                 }
 
                 let left = stack.pop().unwrap();
                 let right = stack.pop().unwrap();
-                let node = AstNode::Operator(symbol, Some(Box::new(left)), Some(Box::new(right)));
+                let node = AstNode::Operator(symbol, Box::new(left), Box::new(right));
                 stack.push(node);
             }
         }
