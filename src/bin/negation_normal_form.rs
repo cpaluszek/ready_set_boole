@@ -1,10 +1,27 @@
 use ready_set_boole::negation_normal_form::negation_normal_form;
+use ready_set_boole::evaluate::*;
+use std::io::{self, Write};
 
 pub fn main() {
-    for arg in std::env::args().skip(1) {
-        println!("{}", arg);
-        let nnf = negation_normal_form(&arg);
-        println!("=> {nnf}");
+    let mut input = String::new();
+
+    loop {
+        print!("Enter formula: ");
+        io::stdout().flush().unwrap();
+
+        match io::stdin().read_line(& mut input) {
+            Ok(0) => break,
+            Ok(_) => {
+                let formula = input.trim();
+                build_and_print_ast(formula);
+                println!("=> {}", negation_normal_form(formula));
+                input.clear();
+            },
+            Err(e) => {
+                eprintln!("Error reading input: {}", e);
+                break;
+            }
+        }
     }
 }
 

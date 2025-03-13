@@ -1,9 +1,26 @@
 use ready_set_boole::{evaluate::build_and_print_ast, truth_table::print_truth_table};
+use std::io::{self, Write};
 
 pub fn main() {
-    for arg in std::env::args().skip(1) {
-        build_and_print_ast(&arg);
-        print_truth_table(&arg);
+    let mut input = String::new();
+
+    loop {
+        print!("Enter formula: ");
+        io::stdout().flush().unwrap();
+
+        match io::stdin().read_line(& mut input) {
+            Ok(0) => break,
+            Ok(_) => {
+                let formula = input.trim();
+                build_and_print_ast(formula);
+                print_truth_table(formula);
+                input.clear();
+            },
+            Err(e) => {
+                eprintln!("Error reading input: {}", e);
+                break;
+            }
+        }
     }
 }
 
