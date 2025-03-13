@@ -71,7 +71,7 @@ fn to_nnf_recursive(node: &AstNode, negated: bool) -> Result<AstNode, LogicError
                     let not_a = to_nnf_recursive(left, true)?;
                     let b = to_nnf_recursive(right, false)?;
                     let left_disj = AstNode::Operator(LogicalSymbol::Disjunction, Box::new(not_a), Box::new(b));
-                    
+ 
                     // (¬B ∨ A)
                     let a = to_nnf_recursive(left, false)?;
                     let not_b = to_nnf_recursive(right, true)?;
@@ -151,7 +151,7 @@ fn to_nnf_recursive(node: &AstNode, negated: bool) -> Result<AstNode, LogicError
                     Ok(AstNode::Operator(LogicalSymbol::Disjunction, Box::new(first_part), Box::new(second_part)))
                 }
                 // Default case: should never happen
-                _ => Ok(node.clone()) 
+                _ => Ok(node.clone())
             }
         }
     }

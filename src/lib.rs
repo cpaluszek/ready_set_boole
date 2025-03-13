@@ -1,5 +1,4 @@
 // TODO: time and space complexity of each function
-// TODO: '!A!' is a valid RPN or 'A!!'?
 
 pub mod arithmetic;
 pub mod evaluate;

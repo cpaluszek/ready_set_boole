@@ -25,17 +25,11 @@ fn try_eval_formula(formula: &str) -> Result<bool, LogicError> {
                 };
                 stack.push(value);
             } else if symbol == LogicalSymbol::Negation {
-                if stack.is_empty() {
-                    return Err(LogicError::MissingArgument(character));
-                }
-                let val = stack.pop().unwrap();
+                let val = stack.pop().ok_or(LogicError::MissingArgument(character))?;
                 stack.push(!val);
             } else {
-                if stack.len() < 2 {
-                    return Err(LogicError::MissingArgument(character));
-                }
-                let left = stack.pop().unwrap();
-                let right = stack.pop().unwrap();
+                let left = stack.pop().ok_or(LogicError::MissingArgument(character))?;
+                let right = stack.pop().ok_or(LogicError::MissingArgument(character))?;
 
                 let result = match symbol {
                     LogicalSymbol::Conjunction => left && right,
@@ -54,14 +48,7 @@ fn try_eval_formula(formula: &str) -> Result<bool, LogicError> {
         }
     }
 
-    if stack.len() != 1 {
-        return Err(LogicError::IncompleteFormula{
-            expected: 1,
-            actual: stack.len()
-        });
-    }
-
-    return Ok(stack.pop().unwrap());
+    return stack.pop().ok_or(LogicError::IncompleteFormula { expected: 1, actual: stack.len() });
 }
 
 pub fn build_and_print_ast(formula: &str) {
@@ -79,20 +66,11 @@ pub fn build_ast(formula: &str) -> Result<Ast, LogicError> {
             if symbol.is_operand() {
                 stack.push(AstNode::Operand(symbol));
             } else if symbol == LogicalSymbol::Negation {
-                if stack.is_empty() {
-                    return Err(LogicError::MissingArgument(character));
-                }
-                let operand = stack.pop().unwrap();
+                let operand = stack.pop().ok_or(LogicError::MissingArgument(character))?;
                 stack.push(AstNode::Negation(Box::new(operand)));
             } else {
-
-                // TODO: use .ok_or() instead of unwrap
-                if stack.len() < 2 {
-                    return Err(LogicError::MissingArgument(character));
-                }
-
-                let right = stack.pop().unwrap();
-                let left = stack.pop().unwrap();
+                let right = stack.pop().ok_or(LogicError::MissingArgument(character))?;
+                let left = stack.pop().ok_or(LogicError::MissingArgument(character))?;
                 let node = AstNode::Operator(symbol, Box::new(left), Box::new(right));
                 stack.push(node);
             }
@@ -102,14 +80,8 @@ pub fn build_ast(formula: &str) -> Result<Ast, LogicError> {
         }
     }
 
-    if stack.len() != 1 {
-        return Err(LogicError::IncompleteFormula{
-            expected: 1,
-            actual: stack.len()
-        });
-    }
-
-    let formula_ast = Ast::new(stack.pop().unwrap());
+    let root_node = stack.pop().ok_or(LogicError::IncompleteFormula { expected: 1, actual: stack.len() })?;
+    let formula_ast = Ast::new(root_node);
     return Ok(formula_ast);
 }
 
