@@ -167,6 +167,26 @@ impl Ast {
             }
         }
     }
+
+    pub fn to_rpn(&self) -> String {
+        if let Some(ref root) = self.root {
+            self.node_to_rpn(root)
+        } else {
+            String::new()
+        }
+    }
+
+    fn node_to_rpn(&self, node: &AstNode) -> String {
+        match node {
+            AstNode::Operand(symbol) => symbol.to_unicode_symbol().to_string(),
+            AstNode::Negation(symbol) => format!("{}{}", self.node_to_rpn(symbol), LogicalSymbol::Negation.to_unicode_symbol()),
+            AstNode::Operator(symbol, left, right) => {
+                let left_str = self.node_to_rpn(left);
+                let right_str = self.node_to_rpn(right);
+                format!("{}{}{}", left_str, right_str, symbol.to_unicode_symbol())
+            }
+        }
+    }
 }
 
 impl fmt::Display for Ast {

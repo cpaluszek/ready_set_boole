@@ -91,8 +91,8 @@ pub fn build_ast(formula: &str) -> Result<Ast, LogicError> {
                     return Err(LogicError::MissingArgument(character));
                 }
 
-                let left = stack.pop().unwrap();
                 let right = stack.pop().unwrap();
+                let left = stack.pop().unwrap();
                 let node = AstNode::Operator(symbol, Box::new(left), Box::new(right));
                 stack.push(node);
             }
