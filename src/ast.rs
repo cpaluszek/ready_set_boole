@@ -194,3 +194,7 @@ impl fmt::Display for Ast {
         write!(f, "{}", self.visualize_tree())
     }
 }
+
+pub fn create_binary_op(op: LogicalSymbol, left: AstNode, right: AstNode) -> AstNode {
+    AstNode::Operator(op, Box::new(left), Box::new(right))
+}
