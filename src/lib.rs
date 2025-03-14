@@ -7,9 +7,13 @@ pub mod symbol;
 pub mod error;
 pub mod truth_table;
 pub mod negation_normal_form;
+pub mod conjunctive_normal_form;
+pub mod sat;
 
 pub use arithmetic::*;
 pub use evaluate::eval_formula;
 pub use error::LogicError;
 pub use truth_table::*;
 pub use negation_normal_form::*;
+pub use conjunctive_normal_form::*;
+pub use sat::*;

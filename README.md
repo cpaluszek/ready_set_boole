@@ -103,7 +103,7 @@ Input Expression: `(A ∧ B) ∨ C`
 Each row represents a unique combination of variable values, and the columns show intermediate and final results.
 
 ## Ex05 - Negation Normal Form
-**WHAT IS THE PURPOSE OF THIS FORM??**
+**NNF simplifies logical formulas by pushing negations inward, making them easier to manipulate for automated reasoning, theorem proving, and further transformations like CNF or DNF.**
 
 - [Negation Normal Form](https://en.wikipedia.org/wiki/Negation_normal_form)
 
@@ -123,3 +123,6 @@ This process can be represented using the following rewrite rules:
 - Distributivity:
     - (A ∧ (B ∨ C)) ⇔ ((A ∧ B) ∨ (A ∧ C))
     - (A ∨ (B ∧ C)) ⇔ ((A ∨ B) ∧ (A ∨ C))
+
+## Ex06 - Conjunctive Normal Form
+- [Conjunctive Normal Form](https://en.wikipedia.org/wiki/Conjunctive_normal_form)

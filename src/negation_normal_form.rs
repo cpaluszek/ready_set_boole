@@ -1,4 +1,4 @@
-use crate::{ast::{Ast, AstNode}, evaluate::build_ast, symbol::LogicalSymbol, LogicError};
+use crate::{ast::{create_binary_op, Ast, AstNode}, evaluate::build_ast, symbol::LogicalSymbol, LogicError};
 
 /*
 - Double negation elimination: (¬¬A) ⇔ A
@@ -34,11 +34,7 @@ pub fn negation_normal_form(formula: &str) -> String {
     }
 }
 
-fn create_binary_op(op: LogicalSymbol, left: AstNode, right: AstNode) -> AstNode {
-    AstNode::Operator(op, Box::new(left), Box::new(right))
-}
-
-fn to_nnf_recursive(node: &AstNode, negated: bool) -> Result<AstNode, LogicError> {
+pub fn to_nnf_recursive(node: &AstNode, negated: bool) -> Result<AstNode, LogicError> {
     // The negated parameter tracks if the current node is negated
     match node {
         AstNode::Operand(symbol) => handle_operand(symbol, negated),

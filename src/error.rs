@@ -8,6 +8,7 @@ pub enum LogicError {
         expected: usize,
         actual: usize,
     },
+    UnexpectedOperatorCNF,
 }
 
 impl fmt::Display for LogicError {
@@ -17,6 +18,7 @@ impl fmt::Display for LogicError {
             LogicError::UnrecognizedSymbol(c) => write!(f, "'{}' is not a recognized symbol", c),
             LogicError::IncompleteFormula { expected, actual } => 
                 write!(f, "Incomplete formula, stack contains {} elements instead of {}", actual, expected),
+            LogicError::UnexpectedOperatorCNF => write!(f, "Unexpected operator in CNF conversion"),
         }
     }
 }

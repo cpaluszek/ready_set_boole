@@ -47,8 +47,11 @@ fn try_eval_formula(formula: &str) -> Result<bool, LogicError> {
             return Err(LogicError::UnrecognizedSymbol(character));
         }
     }
+    if stack.len() != 1 {
+        return Err(LogicError::IncompleteFormula { expected: 1, actual: stack.len() });
+    }
 
-    return stack.pop().ok_or(LogicError::IncompleteFormula { expected: 1, actual: stack.len() });
+    return Ok(stack.pop().unwrap());
 }
 
 pub fn build_and_print_ast(formula: &str) {
