@@ -1,13 +1,11 @@
-use crate::symbol::LogicalSymbol;
-
-use crate::ast::{Ast, AstNode};
+use crate::ast::pop_from_stack;
 use crate::LogicError;
 
 pub fn eval_formula(formula: &str) -> bool {
     match try_eval_formula(formula) {
         Ok(value) => value,
         Err(err) => {
-            eprintln!("Error occurred while evaluating: {}", err);
+            eprintln!("Error occurred while evaluating: {err:?}");
             false
         }
     }
@@ -15,76 +13,56 @@ pub fn eval_formula(formula: &str) -> bool {
 
 fn try_eval_formula(formula: &str) -> Result<bool, LogicError> {
     let mut stack: Vec<bool> = Vec::with_capacity(formula.len());
+
     for character in formula.chars() {
-        if let Some(symbol) = LogicalSymbol::from_char(character) {
-            if symbol.is_operand() {
-                let value = match symbol {
-                    LogicalSymbol::True => true,
-                    LogicalSymbol::False => false,
-                    _ => return Err(LogicError::UnrecognizedSymbol(character)),
-                };
-                stack.push(value);
-            } else if symbol == LogicalSymbol::Negation {
-                let val = stack.pop().ok_or(LogicError::MissingArgument(character))?;
+        match character {
+            // Constants
+            '1' => stack.push(true),
+            '0' => stack.push(false),
+
+            // Negation
+            '!' => {
+                let val = pop_from_stack(&mut stack)?;
                 stack.push(!val);
-            } else {
-                let left = stack.pop().ok_or(LogicError::MissingArgument(character))?;
-                let right = stack.pop().ok_or(LogicError::MissingArgument(character))?;
+            },
 
-                let result = match symbol {
-                    LogicalSymbol::Conjunction => left && right,
-                    LogicalSymbol::Disjunction => left || right,
-                    LogicalSymbol::ExclusiveOr => left != right,
-                    LogicalSymbol::Implication => !left || right,
-                    LogicalSymbol::Equivalence => left == right,
-                    _ => unreachable!()
-                };
+            // Binary operators
+            '&' => {
+                let right = pop_from_stack(&mut stack)?;
+                let left = pop_from_stack(&mut stack)?;
+                stack.push(left && right);
+            },
+            '|' => {
+                let right = pop_from_stack(&mut stack)?;
+                let left = pop_from_stack(&mut stack)?;
+                stack.push(left || right);
+            },
+            '^' => {
+                let right = pop_from_stack(&mut stack)?;
+                let left = pop_from_stack(&mut stack)?;
+                stack.push(left != right);
+            },
+            '>' => {
+                let right = pop_from_stack(&mut stack)?;
+                let left = pop_from_stack(&mut stack)?;
+                stack.push(!left || right);
+            },
+            '=' => {
+                let right = pop_from_stack(&mut stack)?;
+                let left = pop_from_stack(&mut stack)?;
+                stack.push(left == right);
+            },
 
-                stack.push(result);
-            }
-        }
-        else {
-            return Err(LogicError::UnrecognizedSymbol(character));
+            // Unrecognized character
+            _ => return Err(LogicError::UnrecognizedSymbol),
         }
     }
+
     if stack.len() != 1 {
-        return Err(LogicError::IncompleteFormula { expected: 1, actual: stack.len() });
+        return Err(LogicError::IncompleteFormula);
     }
 
-    return Ok(stack.pop().unwrap());
+    Ok(stack.pop().unwrap()) // Safe because we just checked stack.len() == 1
 }
 
-pub fn build_and_print_ast(formula: &str) {
-    match build_ast(formula) {
-        Ok(ast) => println!("{}", ast),
-        Err(err) => eprintln!("Error occurred while evaluating: {}", err),
-    }
-}
-
-pub fn build_ast(formula: &str) -> Result<Ast, LogicError> {
-    let mut stack: Vec<AstNode> = Vec::with_capacity(formula.len());
-
-    for character in formula.chars() {
-        if let Some(symbol) = LogicalSymbol::from_char(character) {
-            if symbol.is_operand() {
-                stack.push(AstNode::Operand(symbol));
-            } else if symbol == LogicalSymbol::Negation {
-                let operand = stack.pop().ok_or(LogicError::MissingArgument(character))?;
-                stack.push(AstNode::Negation(Box::new(operand)));
-            } else {
-                let right = stack.pop().ok_or(LogicError::MissingArgument(character))?;
-                let left = stack.pop().ok_or(LogicError::MissingArgument(character))?;
-                let node = AstNode::Operator(symbol, Box::new(left), Box::new(right));
-                stack.push(node);
-            }
-        }
-        else {
-            return Err(LogicError::UnrecognizedSymbol(character));
-        }
-    }
-
-    let root_node = stack.pop().ok_or(LogicError::IncompleteFormula { expected: 1, actual: stack.len() })?;
-    let formula_ast = Ast::new(root_node);
-    return Ok(formula_ast);
-}
 

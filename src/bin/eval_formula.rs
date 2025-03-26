@@ -1,4 +1,4 @@
-use ready_set_boole::evaluate::*;
+use ready_set_boole::{ast::build_and_print_ast, evaluate::*};
 use std::io::{self, Write};
 
 pub fn main() {
