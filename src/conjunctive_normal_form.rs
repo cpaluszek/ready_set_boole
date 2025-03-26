@@ -50,17 +50,17 @@ fn format_cnf_to_rpn(node: &AstNode) -> String {
 fn collect_cnf_components(node: &AstNode, literals: &mut Vec<String>, operators: &mut Vec<String>) {
     match node {
         AstNode::Operand(symbol) => {
-            literals.push(symbol.to_unicode_symbol().to_string());
+            literals.push(symbol.to_unicode().to_string());
         },
         AstNode::Negation(inner) => {
             if let AstNode::Operand(symbol) = **inner {
                 // For negated variables, add the variable and negation together
-                literals.push(format!("{}{}", symbol.to_unicode_symbol(), LogicalSymbol::Negation.to_unicode_symbol()));
+                literals.push(format!("{}{}", symbol.to_unicode(), LogicalSymbol::Negation.to_unicode()));
             } else {
                 // This shouldn't happen after NNF conversion
                 eprintln!("Warning: Complex negation found in CNF formula");
                 collect_cnf_components(inner, literals, operators);
-                operators.push(LogicalSymbol::Negation.to_unicode_symbol().to_string());
+                operators.push(LogicalSymbol::Negation.to_unicode().to_string());
             }
         },
         AstNode::Operator(op, left, right) => {
@@ -76,21 +76,21 @@ fn collect_cnf_components(node: &AstNode, literals: &mut Vec<String>, operators:
                     collect_cnf_components(left, literals, operators);
                     collect_cnf_components(right, literals, operators);
                     // Add conjunction at the end
-                    operators.push(op.to_unicode_symbol().to_string());
+                    operators.push(op.to_unicode().to_string());
                 },
                 LogicalSymbol::Disjunction => {
                     // Process operands and add disjunction in the middle
                     collect_cnf_components(left, literals, operators);
                     collect_cnf_components(right, literals, operators);
                     // Add disjunction with literals
-                    operators.push(op.to_unicode_symbol().to_string());
+                    operators.push(op.to_unicode().to_string());
                 },
                 _ => {
                     // Shouldn't happen in CNF
                     eprintln!("Warning: Unexpected operator in CNF formula");
                     collect_cnf_components(left, literals, operators);
                     collect_cnf_components(right, literals, operators);
-                    operators.push(op.to_unicode_symbol().to_string());
+                    operators.push(op.to_unicode().to_string());
                 }
             }
         }

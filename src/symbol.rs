@@ -32,19 +32,6 @@ impl LogicalSymbol {
 
     pub fn to_unicode(&self) -> char {
         match self {
-            LogicalSymbol::False => '⊥',
-            LogicalSymbol::True => '⊤',
-            LogicalSymbol::Negation => '¬',
-            LogicalSymbol::Conjunction => '∧',
-            LogicalSymbol::Disjunction => '∨',
-            LogicalSymbol::ExclusiveOr => '⊕',
-            LogicalSymbol::Implication => '⇒',
-            LogicalSymbol::Equivalence => '⇔',
-            LogicalSymbol::Variable(c) => *c,
-        }
-    }
-    pub fn to_unicode_symbol(&self) -> char {
-        match self {
             LogicalSymbol::False => '0',
             LogicalSymbol::True => '1',
             LogicalSymbol::Negation => '!',
