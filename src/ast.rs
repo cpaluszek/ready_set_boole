@@ -1,6 +1,6 @@
 use std::{collections::HashSet, fmt};
 
-use crate::{expression::Expression, LogicError};
+use crate::{expression::Expression, pop_from_stack, LogicError};
 
 #[derive(Debug, Clone)]
 pub struct Ast {
@@ -15,7 +15,43 @@ impl Ast {
     }
 
     pub fn from_formula(formula: &str) -> Result<Self, LogicError> {
-        build_ast(formula)
+        let mut stack: Vec<Expression> = Vec::with_capacity(formula.len());
+
+        for character in formula.chars() {
+            match character {
+                // Constants
+                '1' => stack.push(Expression::Operand(true)),
+                '0' => stack.push(Expression::Operand(false)),
+
+                // Variables
+                'A'..'Z' => stack.push(Expression::Variable(character)),
+
+                // Negation
+                '!' => {
+                    let operand = pop_from_stack(&mut stack)?;
+                    stack.push(Expression::Negation(Box::new(operand)));
+                },
+
+                // Binary operators - using the helper function
+                '&' => handle_binary_op(&mut stack, Expression::Conjunction)?,
+                '|' => handle_binary_op(&mut stack, Expression::Disjunction)?,
+                '^' => handle_binary_op(&mut stack, Expression::ExclusiveOr)?,
+                '>' => handle_binary_op(&mut stack, Expression::Implication)?,
+                '=' => handle_binary_op(&mut stack, Expression::Equivalence)?,
+
+                // Unrecognized character
+                _ => return Err(LogicError::UnrecognizedSymbol),
+            }
+        }
+
+        // Make sure we have exactly one element in the stack (the full expression)
+        if stack.len() != 1 {
+            return Err(LogicError::IncompleteFormula);
+        }
+
+        let root_expr = stack.pop().unwrap(); // Safe because we just checked stack.len() == 1
+        let formula_ast = Ast::new(root_expr);
+        Ok(formula_ast)
     }
 
     fn height(&self, expr: &Expression) -> usize {
@@ -163,16 +199,11 @@ impl Ast {
             Expression::Operand(val) => *val,
             Expression::Variable(c) => values.contains(c),
             Expression::Negation(child) => !self.evaluate(child, values),
-            Expression::Conjunction(left, right) => 
-            self.evaluate_binary_op(left, right, values, |a, b| a && b),
-            Expression::Disjunction(left, right) => 
-            self.evaluate_binary_op(left, right, values, |a, b| a || b),
-            Expression::ExclusiveOr(left, right) => 
-            self.evaluate_binary_op(left, right, values, |a, b| a != b),
-            Expression::Implication(left, right) => 
-            self.evaluate_binary_op(left, right, values, |a, b| !a || b),
-            Expression::Equivalence(left, right) => 
-            self.evaluate_binary_op(left, right, values, |a, b| a == b),
+            Expression::Conjunction(left, right) => self.evaluate_binary_op(left, right, values, |a, b| a && b),
+            Expression::Disjunction(left, right) => self.evaluate_binary_op(left, right, values, |a, b| a || b),
+            Expression::ExclusiveOr(left, right) => self.evaluate_binary_op(left, right, values, |a, b| a != b),
+            Expression::Implication(left, right) => self.evaluate_binary_op(left, right, values, |a, b| !a || b),
+            Expression::Equivalence(left, right) => self.evaluate_binary_op(left, right, values, |a, b| a == b),
         }
     }
 
@@ -212,10 +243,6 @@ impl fmt::Display for Ast {
     }
 }
 
-pub fn pop_from_stack<T>(stack: &mut Vec<T>) -> Result<T, LogicError> {
-    stack.pop().ok_or(LogicError::MissingArgument)
-}
-
 fn handle_binary_op(
     stack: &mut Vec<Expression>, 
     constructor: fn(Box<Expression>, Box<Expression>) -> Expression
@@ -226,48 +253,8 @@ fn handle_binary_op(
     Ok(())
 }
 
-pub fn build_ast(formula: &str) -> Result<Ast, LogicError> {
-    let mut stack: Vec<Expression> = Vec::with_capacity(formula.len());
-
-    for character in formula.chars() {
-        match character {
-            // Constants
-            '1' => stack.push(Expression::Operand(true)),
-            '0' => stack.push(Expression::Operand(false)),
-
-            // Variables (a-z, A-Z)
-            c if c.is_alphabetic() => stack.push(Expression::Variable(c)),
-
-            // Negation
-            '!' => {
-                let operand = pop_from_stack(&mut stack)?;
-                stack.push(Expression::Negation(Box::new(operand)));
-            },
-
-            // Binary operators - using the helper function
-            '&' => handle_binary_op(&mut stack, Expression::Conjunction)?,
-            '|' => handle_binary_op(&mut stack, Expression::Disjunction)?,
-            '^' => handle_binary_op(&mut stack, Expression::ExclusiveOr)?,
-            '>' => handle_binary_op(&mut stack, Expression::Implication)?,
-            '=' => handle_binary_op(&mut stack, Expression::Equivalence)?,
-
-            // Unrecognized character
-            _ => return Err(LogicError::UnrecognizedSymbol),
-        }
-    }
-
-    // Make sure we have exactly one element in the stack (the full expression)
-    if stack.len() != 1 {
-        return Err(LogicError::IncompleteFormula);
-    }
-
-    let root_expr = stack.pop().unwrap(); // Safe because we just checked stack.len() == 1
-    let formula_ast = Ast::new(root_expr);
-    Ok(formula_ast)
-}
-
 pub fn build_and_print_ast(formula: &str) {
-    match build_ast(formula) {
+    match Ast::from_formula(formula) {
         Ok(ast) => println!("{}", ast),
         Err(_) => {},
     }

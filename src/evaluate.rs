@@ -1,5 +1,4 @@
-use crate::ast::pop_from_stack;
-use crate::LogicError;
+use crate::{pop_from_stack, LogicError};
 
 pub fn eval_formula(formula: &str) -> bool {
     match try_eval_formula(formula) {
@@ -62,7 +61,7 @@ fn try_eval_formula(formula: &str) -> Result<bool, LogicError> {
         return Err(LogicError::IncompleteFormula);
     }
 
-    Ok(stack.pop().unwrap()) // Safe because we just checked stack.len() == 1
+    // Safe because we just checked stack.len() == 1
+    Ok(stack.pop().unwrap()) 
 }
-
 
