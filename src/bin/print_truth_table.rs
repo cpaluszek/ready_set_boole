@@ -1,4 +1,4 @@
-use ready_set_boole::{ast::build_and_print_ast, truth_table::print_truth_table};
+use ready_set_boole::{build_and_print_expression, truth_table::print_truth_table};
 use std::io::{self, Write};
 
 pub fn main() {
@@ -12,7 +12,7 @@ pub fn main() {
             Ok(0) => break,
             Ok(_) => {
                 let formula = input.trim();
-                build_and_print_ast(formula);
+                build_and_print_expression(formula);
                 print_truth_table(formula);
                 println!("");
                 input.clear();

@@ -1,22 +1,4 @@
-use ready_set_boole::{evaluate::build_ast, negation_normal_form};
-
-#[test]
-fn test_to_rpn() {
-    let formula = "A!!";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-    let formula = "AB>";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-    let formula = "AB&!";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-    let formula = "AB|!";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-    let formula = "AB>";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-    let formula = "AB=";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-    let formula = "AB|C&!";
-    assert_eq!(formula, build_ast(formula).unwrap().to_rpn());
-}
+use ready_set_boole::negation_normal_form;
 
 #[test]
 fn test_double_negation() {

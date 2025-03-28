@@ -1,9 +1,10 @@
 use std::collections::HashSet;
 
-use crate::ast::Ast;
+use crate::Expression;
 
+// NOTE: use u32 and masking to store variables as bit?
 pub fn print_truth_table(formula: &str) {
-    let ast = match Ast::from_formula(formula) {
+    let expression = match Expression::from_formula(formula) {
         Ok(value) => value,
         Err(err) => {
             eprintln!("Error occurred while evaluating: {err:?}");
@@ -11,7 +12,7 @@ pub fn print_truth_table(formula: &str) {
         },
     };
 
-    let vars_set = ast.variables();
+    let vars_set = expression.variables();
     let mut vars: Vec<char> = vars_set.into_iter().collect();
     vars.sort();
 
@@ -19,27 +20,24 @@ pub fn print_truth_table(formula: &str) {
 
     let mut values = HashSet::with_capacity(vars.len());
 
-    // Print rows
     let row_count = 1 << vars.len();
-    if let Some(ref root) = ast.root {
-        for row in 0..row_count {
-            values.clear();
+    for row in 0..row_count {
+        values.clear();
 
-            // Build the combination
-            for (col, &var) in vars.iter().enumerate() {
-                if row & (1 << (vars.len() - 1 - col)) != 0 {
-                    values.insert(var);
-                }
+        // Build the combination
+        for (col, &var) in vars.iter().enumerate() {
+            if row & (1 << (vars.len() - 1 - col)) != 0 {
+                values.insert(var);
             }
-
-            let result = ast.evaluate(&root, &values);
-
-            print!("|");
-            for v in &vars {
-                print!(" {} |", if values.contains(v) { "1" } else { "0" });
-            }
-            println!(" {} |", if result { "1" } else { "0" });
         }
+
+        let result = expression.evaluate(&values);
+
+        print!("|");
+        for v in &vars {
+            print!(" {} |", if values.contains(v) { "1" } else { "0" });
+        }
+        println!(" {} |", if result { "1" } else { "0" });
     }
 }
 
