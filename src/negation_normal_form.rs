@@ -16,7 +16,7 @@ pub fn negation_normal_form(formula: &str) -> String {
 // XOR: A ⊕ B ⇔ (A ∧ ¬B) ∨ (¬A ∧ B)
 // Equivalence: A ⇔ B ⇔ (A ⇒ B) ∧ (B ⇒ A) ⇔ (¬A ∨ B) ∧ (¬B ∨ A)
 // Implication: A ⇒ B ⇔ ¬A ∨ B
-fn normalize(expr: &Expression) -> Expression {
+pub fn normalize(expr: &Expression) -> Expression {
     match expr {
         Expression::Val(_) | Expression::Var(_) => expr.clone(),
         Expression::Neg(e) => negate(e),

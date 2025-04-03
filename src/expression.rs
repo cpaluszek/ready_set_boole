@@ -86,7 +86,6 @@ impl Expression {
     }
 
     // Construction Functions
-    // TODO: check for this constructor usage in truth_table + eval + ast
     pub fn var(c: char) -> Expression {
         Expression::Var(c)
     }

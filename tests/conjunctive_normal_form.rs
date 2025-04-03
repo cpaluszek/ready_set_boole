@@ -1,103 +1,92 @@
-// use ready_set_boole::{ast::AstNode, conjunctive_normal_form, evaluate::build_ast, symbol::LogicalSymbol};
-//
-// #[test]
-// fn test_conjunctive_normal_form() {
-//     let formula = "AB&!";
-//     let cnf = conjunctive_normal_form(&formula);
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-// #[test]
-// fn test_conjunctive_normal_form2() {
-//     let formula = "AB|!";
-//     let cnf = conjunctive_normal_form(&formula);
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-// #[test]
-// fn test_conjunctive_normal_form3() {
-//     let formula = "AB|C&";
-//     let cnf = conjunctive_normal_form(&formula);
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-// #[test]
-// fn test_conjunctive_normal_form4() {
-//     let formula = "AB|C|D|";
-//     let cnf = conjunctive_normal_form(&formula);
-//     println!("CNF: {cnf}");
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-// #[test]
-// fn test_conjunctive_normal_form5() {
-//     let formula = "AB&C&D&";
-//     let cnf = conjunctive_normal_form(&formula);
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-// #[test]
-// fn test_conjunctive_normal_form6() {
-//     let formula = "AB&!C!|";
-//     let cnf = conjunctive_normal_form(&formula);
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-// #[test]
-// fn test_conjunctive_normal_form7() {
-//     let formula = "AB|!C!&";
-//     let cnf = conjunctive_normal_form(&formula);
-//     let root_cnf = build_ast(&cnf);
-//     assert!(is_cnf(&root_cnf.unwrap().root.unwrap()));
-// }
-//
-//
-// fn is_cnf(node: &AstNode) -> bool {
-//     match node {
-//         AstNode::Operand(_) | AstNode::Negation(_) => true,
-//         AstNode::Operator(op, left, right) => {
-//             match op {
-//                 LogicalSymbol::Conjunction => {
-//                     is_cnf(left) && is_cnf(right)
-//                 },
-//                 LogicalSymbol::Disjunction => {
-//                     is_clause(left) && is_clause(right)
-//                 }
-//                 _ => false,
-//             }
-//         }
-//     }
-// }
-//
-// fn is_clause(node: &AstNode) -> bool {
-//     match node {
-//         AstNode::Operand(_) | AstNode::Negation(_) => true,
-//         AstNode::Operator(op, left, right) => {
-//             match op {
-//                 LogicalSymbol::Disjunction => {
-//                     is_literal(left) && is_clause(right)
-//                 }
-//                 _ => false,
-//             }
-//         }
-//     }
-// }
-//
-// fn is_literal(node: &AstNode) -> bool {
-//     match node {
-//         AstNode::Operand(_) => true,
-//         AstNode::Negation(inner) => {
-//             match **inner {
-//                 AstNode::Operand(_) => true,
-//                 _ => false,
-//             }
-//         },
-//         _ => false,
-//     }
-// }
+use ready_set_boole::conjunctive_normal_form;
+
+#[test]
+fn test_negation_of_conjunction() {
+    // Test for !(A & B) = !A | !B (De Morgan's law)
+    let formula = "AB&!";
+    let expected = "A!B!|";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_negation_of_disjunction() {
+    // Test for !(A | B) = !A & !B (De Morgan's law)
+    let formula = "AB|!";
+    let expected = "A!B!&";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_disjunction_with_conjunction() {
+    // Test for (A | B) & C = (A | B) & C (already in CNF)
+    let formula = "AB|C&";
+    let expected = "AB|C&";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_multiple_disjunctions() {
+    // Test for A | B | C | D = A | B | C | D (already in CNF)
+    let formula = "AB|C|D|";
+    let expected = "ABCD|||";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_multiple_conjunctions() {
+    // Test for A & B & C & D = A & B & C & D (already in CNF)
+    let formula = "AB&C&D&";
+    let expected = "ABCD&&&";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_negated_conjunction_with_negated_var() {
+    // Test for !(A & B) | !C = !A | !B | !C (distributive law)
+    let formula = "AB&!C!|";
+    let expected = "A!B!C!||";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_negated_disjunction_with_negated_var() {
+    // Test for !(A | B) & !C = !A & !B & !C
+    let formula = "AB|!C!&";
+    let expected = "A!B!C!&&";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+// Additional test cases to improve coverage
+
+#[test]
+fn test_implication() {
+    // Test for A => B = !A | B
+    let formula = "AB>";
+    let expected = "A!B|";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_equivalence() {
+    // Test for A <=> B = (!A | B) & (!B | A) 
+    let formula = "AB=";
+    let expected = "A!B|B!A|&";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_complex_distribution() {
+    // Test for A | (B & C) = (A | B) & (A | C) (distributive law)
+    let formula = "ABC&|";
+    let expected = "AB|AC|&";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+
+#[test]
+fn test_double_negation() {
+    // Test for !!A = A
+    let formula = "A!!";
+    let expected = "A";
+    assert_eq!(conjunctive_normal_form(formula), expected);
+}
+

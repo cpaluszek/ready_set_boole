@@ -1,148 +1,90 @@
-// use crate::{ast::AstNode, to_nnf_recursive, LogicError};
-// use crate::symbol::LogicalSymbol;
-// use crate::evaluate::build_ast;
-// use crate::ast::create_binary_op;
-//
-// // NOTE: use karnaugh map to simplify the formula?
-// pub fn conjunctive_normal_form(formula: &str) -> String {
-//     match build_ast(formula) {
-//         Ok(ast) => {
-//             if let Some(root) = ast.root {
-//                 // convert to NNF
-//                 match to_nnf_recursive(&root, false) {
-//                     Ok(nnf_root) => {
-//                         // Then apply CNF transformation
-//                         match to_cnf_recursive(&nnf_root) {
-//                             Ok(cnf) => {
-//                                 format_cnf_to_rpn(&cnf)
-//                             },
-//                             Err(err) => {
-//                                 eprintln!("Error occurred while evaluating: {}", err);
-//                                 String::new()
-//                             }
-//                         }
-//                     }
-//                     Err(err) => {
-//                         eprintln!("Error occurred while evaluating: {}", err);
-//                         String::new()
-//                     }
-//                 }
-//             } else {
-//                 String::new()
-//             }
-//         }
-//         Err(err) => {
-//             eprintln!("Error occurred while evaluating: {}", err);
-//             String::new()
-//         }
-//     }
-// }
-//
-// fn format_cnf_to_rpn(node: &AstNode) -> String {
-//     let mut literals = Vec::new();
-//     let mut operators = Vec::new();
-//
-//     collect_cnf_components(node, &mut literals, &mut operators);
-//
-//     literals.into_iter().chain(operators.into_iter()).collect()
-// }
-//
-// fn collect_cnf_components(node: &AstNode, literals: &mut Vec<String>, operators: &mut Vec<String>) {
-//     match node {
-//         AstNode::Operand(symbol) => {
-//             literals.push(symbol.to_unicode().to_string());
-//         },
-//         AstNode::Negation(inner) => {
-//             if let AstNode::Operand(symbol) = **inner {
-//                 // For negated variables, add the variable and negation together
-//                 literals.push(format!("{}{}", symbol.to_unicode(), LogicalSymbol::Negation.to_unicode()));
-//             } else {
-//                 // This shouldn't happen after NNF conversion
-//                 eprintln!("Warning: Complex negation found in CNF formula");
-//                 collect_cnf_components(inner, literals, operators);
-//                 operators.push(LogicalSymbol::Negation.to_unicode().to_string());
-//             }
-//         },
-//         AstNode::Operator(op, left, right) => {
-//             // // Process the left and right nodes first
-//             // collect_cnf_components(left, literals, operators);
-//             // collect_cnf_components(right, literals, operators);
-//             //
-//             // // Add the operator after processing both operands
-//             // operators.push(op.to_unicode_symbol().to_string());
-//             match op {
-//                 LogicalSymbol::Conjunction => {
-//                     // Process operands first
-//                     collect_cnf_components(left, literals, operators);
-//                     collect_cnf_components(right, literals, operators);
-//                     // Add conjunction at the end
-//                     operators.push(op.to_unicode().to_string());
-//                 },
-//                 LogicalSymbol::Disjunction => {
-//                     // Process operands and add disjunction in the middle
-//                     collect_cnf_components(left, literals, operators);
-//                     collect_cnf_components(right, literals, operators);
-//                     // Add disjunction with literals
-//                     operators.push(op.to_unicode().to_string());
-//                 },
-//                 _ => {
-//                     // Shouldn't happen in CNF
-//                     eprintln!("Warning: Unexpected operator in CNF formula");
-//                     collect_cnf_components(left, literals, operators);
-//                     collect_cnf_components(right, literals, operators);
-//                     operators.push(op.to_unicode().to_string());
-//                 }
-//             }
-//         }
-//     }
-// }
-//
-// fn to_cnf_recursive(node: &AstNode) -> Result<AstNode, LogicError> {
-//     match node {
-//         AstNode::Operand(_) | AstNode::Negation(_) => {
-//             Ok(node.clone())
-//         },
-//         AstNode::Operator(op, left, right) => {
-//             // Recursively convert the children to CNF
-//             let left_cnf = to_cnf_recursive(left)?;
-//             let right_cnf = to_cnf_recursive(right)?;
-//
-//             match op {
-//                 LogicalSymbol::Conjunction => {
-//                     // For A ∧ B, both A and B must be in CNF
-//                     Ok(create_binary_op(LogicalSymbol::Conjunction, left_cnf, right_cnf))
-//                 },
-//                 LogicalSymbol::Disjunction => {
-//                     // For A ∨ B, apply distributive law
-//                     distribute_disjunction_over_conjunction(&left_cnf, &right_cnf)
-//                 },
-//                 _ => {
-//                     // At this point, we should only have conjunctions and disjunctions
-//                     // since we've already converted to NNF
-//                     Err(LogicError::UnexpectedOperatorCNF)
-//                 }
-//             }
-//         }
-//     }
-// }
-//
-// fn distribute_disjunction_over_conjunction(left: &AstNode, right: &AstNode) -> Result<AstNode, LogicError> {
-//     match (left, right) {
-//         // (A ∧ B) ∨ C → (A ∨ C) ∧ (B ∨ C)
-//         (AstNode::Operator(LogicalSymbol::Conjunction, a, b), c) => {
-//             let a_or_c = distribute_disjunction_over_conjunction(a, c)?;
-//             let b_or_c = distribute_disjunction_over_conjunction(b, c)?;
-//             Ok(create_binary_op(LogicalSymbol::Conjunction, a_or_c, b_or_c))
-//         },
-//         // C ∨ (A ∧ B) → (C ∨ A) ∧ (C ∨ B)
-//         (c, AstNode::Operator(LogicalSymbol::Conjunction, a, b)) => {
-//             let c_or_a = distribute_disjunction_over_conjunction(c, a)?;
-//             let c_or_b = distribute_disjunction_over_conjunction(c, b)?;
-//             Ok(create_binary_op(LogicalSymbol::Conjunction, c_or_a, c_or_b))
-//         },
-//         // For simple disjunctions, return them as is
-//         (a, b) => {
-//             Ok(create_binary_op(LogicalSymbol::Disjunction, a.clone(), b.clone()))
-//         }
-//     }
-// }
+use crate::{normalize, Expression};
+
+// NOTE: use karnaugh map to simplify the formula?
+pub fn conjunctive_normal_form(formula: &str) -> String {
+    let expression = match Expression::from_formula(formula) {
+        Ok(value) => value,
+        Err(err) => {
+            eprintln!("Error occurred while evaluating: {err:?}");
+            return String::new();
+        }
+    };
+    // First convert to nnf
+    let nnf = normalize(&expression);
+    let cnf = to_cnf(&nnf);
+    flatten_expression(&cnf).to_rpn()
+}
+
+fn to_cnf(expr: &Expression) -> Expression {
+    match expr {
+        Expression::Val(_) | Expression::Var(_) | Expression::Neg(_) => expr.clone(),
+        Expression::And(a, b) => to_cnf(a) & to_cnf(b),
+        Expression::Or(a, b) => {
+            let a_cnf = to_cnf(a);
+            let b_cnf = to_cnf(b);
+
+            // Apply distributive law: A ∨ (B ∧ C) ⇔ (A ∨ B) ∧ (A ∨ C)
+            match(&a_cnf, &b_cnf) {
+                // if right side is AND, distributive: A ∨ (B ∧ C) ⇔ (A ∨ B) ∧ (A ∨ C)
+                (_, Expression::And(b1, b2)) => {
+                    // use to_cnf on both sides ?
+                    to_cnf(  &((a_cnf.clone() | to_cnf(b1)) & (a_cnf | to_cnf(b2))) )
+                },
+                // If left side is AND, distribute: (A ∧ B) ∨ C ⇔ (A ∨ C) ∧ (B ∨ C)
+                (Expression::And(a1, a2), _) => {
+                    to_cnf( &((to_cnf(a1) | b_cnf.clone()) & (to_cnf(a2) | b_cnf)))
+                },
+                // Base case: both sides are litterals in CNF form
+                _ => a_cnf | b_cnf,
+            }
+        },
+        // These expressions should not occur after calling normalize()
+        Expression::Xor(_, _) => panic!("Unexpected XOR in CNF conversion"),
+        Expression::Implication(_, _) => panic!("Unexpected IMPLICATION in CNF conversion"),
+        Expression::Equivalence(_, _) => panic!("Unexpected EQUIVALENCE in CNF conversion"),
+    }
+}
+
+fn flatten_expression(expr: &Expression) -> Expression {
+    match expr {
+        Expression::And(_, _) => {
+            let mut operands = Vec::new();
+            collect_operands(expr, &mut operands, true);
+
+            // create a righ-associative tree of AND
+            let mut result = operands.pop().unwrap();
+            while !operands.is_empty() {
+                result = operands.pop().unwrap() & result;
+            }
+            result
+        },
+        Expression::Or(_, _) => {
+            let mut operands = Vec::new();
+            collect_operands(expr, &mut operands, false);
+
+            // create a righ-associative tree of OR
+            let mut result = operands.pop().unwrap();
+            while !operands.is_empty() {
+                result = operands.pop().unwrap() | result;
+            }
+            result
+        }
+        _ => expr.clone(),
+    }
+}
+
+fn collect_operands(expr: &Expression, operands: &mut Vec<Expression>, is_and: bool) {
+    match (expr, is_and) {
+        (Expression::And(a, b), true) => {
+            collect_operands(a, operands, is_and);
+            collect_operands(b, operands, is_and);
+        },
+        (Expression::Or(a, b), false) => {
+            collect_operands(a, operands, is_and);
+            collect_operands(b, operands, is_and);
+        },
+        _ => operands.push(flatten_expression(expr)),
+
+    }
+
+}
