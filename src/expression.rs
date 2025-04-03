@@ -25,7 +25,7 @@ impl Expression {
                 '0' => stack.push(Expression::Val(false)),
 
                 // Variables
-                'A'..'Z' => stack.push(Expression::Var(character)),
+                'A'..='Z' => stack.push(Expression::Var(character)),
 
                 // Negation
                 '!' => {
