@@ -5,5 +5,6 @@ pub enum LogicError {
     UnrecognizedSymbol,
     IncompleteFormula,
     UnexpectedOperatorCNF,
+    UnknownVar,
 }
 
