@@ -126,3 +126,25 @@ This process can be represented using the following rewrite rules:
 
 ## Ex06 - Conjunctive Normal Form
 - [Conjunctive Normal Form](https://en.wikipedia.org/wiki/Conjunctive_normal_form)
+
+## Ex08 & Ex09 - Set theory
+- [Sets (mathematic) - Wikipedia](https://en.wikipedia.org/wiki/Set_(mathematics))
+- [Powersets - Wikipedia](https://en.wikipedia.org/wiki/Power_set)
+
+## Ex10 - Space filling curves
+- [Space filling curve - Wikipedia](https://en.wikipedia.org/wiki/Space-filling_curve)
+
+A space-filling curve is a continuous curve which maps a closed interval `[0; 1] ∈ R` to a set of values in 1 or more dimensions, so as to cover the whole space. A space-filling curve is defined as: 
+`f : [0; 1] ∈ R → Mn`
+
+Where `[0, 1]` is the source set (it contains values from 0 to 1, such as 0.543543 and 0.3333...), and `n ∈ N` is the number of dimensions for a manifold `M` (a geometric shape or space) that we wish to cover. It’s important to note that f must be bijective.
+-> **bijective**: the mapping is bidirectional and can be reversed
+
+- [Iterative process illustration - Youtube](https://www.youtube.com/playlist?list=PLKXWoWb0qgQ98keBfZV9N2aEqIx-le9Mw)
+
+It can be used to organize 2D data for efficient memory access.
+
+### Z-order curve
+![Z order curve - z coordinate|250](https://upload.wikimedia.org/wikipedia/commons/3/33/Zcurve45bits.png)
+
+![Z order curve mapping|4500](https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Z-curve45.svg/569px-Z-curve45.svg.png)
