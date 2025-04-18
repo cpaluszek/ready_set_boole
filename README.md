@@ -145,6 +145,7 @@ Where `[0, 1]` is the source set (it contains values from 0 to 1, such as 0.5435
 It can be used to organize 2D data for efficient memory access.
 
 ### Z-order curve
-![Z order curve - z coordinate|250](https://upload.wikimedia.org/wikipedia/commons/3/33/Zcurve45bits.png)
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Zcurve45bits.png" width=25% height=25%>
+
 
 ![Z order curve mapping|4500](https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Z-curve45.svg/569px-Z-curve45.svg.png)
