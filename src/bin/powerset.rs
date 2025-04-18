@@ -21,7 +21,6 @@ pub fn main() {
                     }
                 };
 
-                // Check duplicates
                 if has_duplicate(&set) {
                     eprintln!("Invalid set: duplicate");
                     continue;

@@ -14,10 +14,8 @@ pub mod curve;
 pub use arithmetic::*;
 pub use evaluate::eval_formula;
 pub use error::LogicError;
-// pub use truth_table::*;
 pub use negation_normal_form::*;
 pub use conjunctive_normal_form::*;
-// pub use sat::*;
 pub use expression::*;
 
 pub fn pop_from_stack<T>(stack: &mut Vec<T>) -> Result<T, LogicError> {

@@ -56,8 +56,6 @@ fn test_negated_disjunction_with_negated_var() {
     assert_eq!(conjunctive_normal_form(formula), expected);
 }
 
-// Additional test cases to improve coverage
-
 #[test]
 fn test_implication() {
     // Test for A => B = !A | B

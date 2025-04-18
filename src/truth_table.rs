@@ -2,7 +2,6 @@ use std::collections::HashSet;
 
 use crate::Expression;
 
-// NOTE: use u32 and masking to store variables as bit?
 pub fn print_truth_table(formula: &str) {
     let expression = match Expression::from_formula(formula) {
         Ok(value) => value,
