@@ -2,6 +2,12 @@ use std::collections::HashSet;
 
 use crate::Expression;
 
+// m = formula length
+// v = variable count
+// Space complexity: O(m + v)
+// Time complexity: O(2^v . (v + m))
+//   We generate 2^v rows - ex 2 variables -> 2^2 = 4 rows
+//   For each row: determine variables O(v) & evaluate which is O(m)
 pub fn print_truth_table(formula: &str) {
     let expression = match Expression::from_formula(formula) {
         Ok(value) => value,

@@ -1,3 +1,5 @@
+// Space complexity: O(1)
+// Time complexity: O(1)
 pub fn map(x: u16, y: u16) -> f64 {
     let mut packed: u64 = 0;
     let x = x as u64;
@@ -9,6 +11,8 @@ pub fn map(x: u16, y: u16) -> f64 {
     return (packed as f64) / (u32::MAX as f64);
 }
 
+// Space complexity: O(1)
+// Time complexity: O(1)
 pub fn reverse_map(n: f64) -> (u16, u16) {
     let packed = (n * (u32::MAX as f64)) as u32;
 

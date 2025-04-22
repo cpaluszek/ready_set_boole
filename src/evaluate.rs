@@ -1,5 +1,7 @@
 use crate::{pop_from_stack, LogicError};
 
+// Space complexity: O(n) - linear with formula length
+// Time complexity: O(n) - linear with formula length
 pub fn eval_formula(formula: &str) -> bool {
     match try_eval_formula(formula) {
         Ok(value) => value,

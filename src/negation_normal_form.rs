@@ -1,5 +1,11 @@
 use crate::Expression;
 
+// Space complexity: O(m): O(m) for expression tree + O(m) for call stack
+// Time complexity:  O(m)
+//   Expression parsing: O(m)
+//   Val and Var - O(1)
+//   Unary nodes - 1 recursive call
+//   Binary nodes - 2 recursive calls
 pub fn negation_normal_form(formula: &str) -> String {
     let expression = match Expression::from_formula(formula) {
         Ok(value) => value,

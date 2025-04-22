@@ -2,6 +2,10 @@ use std::collections::HashSet;
 
 use crate::Expression;
 
+// m = formula length
+// v = variable count
+// Space complexity: O(m + v)
+// Time complexity: O(2^v (v + m))
 pub fn sat(formula: &str) -> bool {
     let expression = match Expression::from_formula(formula) {
         Ok(value) => value,

@@ -1,6 +1,17 @@
 use crate::{normalize, Expression};
 
-// NOTE: use karnaugh map to simplify the formula?
+// Space complexity: O(2^m):
+//      Expression tree - O(m)
+//      NNF Expression - O(m)
+//      Call stack - O(m)
+//      CNF expression - O(2^m) - can be exponentially larger than the input
+// Time complexity:  O(2^m)
+//   Expression parsing: O(m)
+//   NNF Conversion: O(m)
+//   CNF conversion: O(2^m)
+//      AND op: 2 recursive calls
+//      OR op: distributing can lead to exponential growth
+//      Flattening: O(m)
 pub fn conjunctive_normal_form(formula: &str) -> String {
     let expression = match Expression::from_formula(formula) {
         Ok(value) => value,
@@ -84,7 +95,5 @@ fn collect_operands(expr: &Expression, operands: &mut Vec<Expression>, is_and: b
             collect_operands(b, operands, is_and);
         },
         _ => operands.push(flatten_expression(expr)),
-
     }
-
 }

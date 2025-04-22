@@ -4,6 +4,10 @@ use crate::{pop_from_stack, LogicError};
 
 // A powerset of S is the set of all subsets of S
 // including the empty set and S.
+//
+// The main loop runs 2^n times + inner loop (n times)
+// Space complexity: O(n x 2^n)
+// Time complexity: O(n x 2^n)
 pub fn powerset(set: Vec<i32>) -> Vec<Vec<i32>> {
     let mut powerset = Vec::with_capacity(1 << set.len());
 
@@ -75,6 +79,16 @@ fn complement(a: Vec<i32>, b: Vec<i32>) -> Vec<i32> {
     result
 }
 
+// union - xunion - intersection - complement - O(n^2)
+// f = formula length
+// s = total number of element in all sets
+// Space complexity: O(f * s)
+//      Stack can grow to size f
+//      Each set operation can create a result of size O(s)
+// Time complexity: O(f * s^2)
+//      Building the "all" set is O(s^2)
+//      Processing the formula:
+//          For each character in the formula: use O(n^2) functions
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
     match try_eval_set(formula, sets) {
         Ok(value) => value,
